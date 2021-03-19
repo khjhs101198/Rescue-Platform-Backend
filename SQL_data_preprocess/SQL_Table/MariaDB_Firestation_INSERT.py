@@ -1,3 +1,5 @@
+#!/usr/bin/python
+#-*- coding: utf-8 -*-
 import mysql.connector
 from mysql.connector import Error
 try:
@@ -24,6 +26,7 @@ try:
 
     #Creating table as per requirement
     sql = "INSERT INTO Firestation (team_name, brigade,squadron,area_code,address,phone_number,dax_number,fireStation_latitude,fireStation_longitude) VALUES (%s, %s, %s,%s, %s, %s,%s, %s, %s);"
+    new data = 
 
     cursor.execute(sql)
 
