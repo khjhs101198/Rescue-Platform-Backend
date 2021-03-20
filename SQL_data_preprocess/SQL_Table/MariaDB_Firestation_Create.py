@@ -23,17 +23,17 @@ try:
     cursor = connection.cursor()
 
     #Creating table as per requirement
-    sql ='''CREATE TABLE Firestation(
+    sql ='''CREATE TABLE firestation(
         team_name CHAR(50) NOT NULL,
         brigade CHAR(50) NOT NULL,
         squadron CHAR(50) NOT NULL,
-        area_code INT,
+        area_code CHAR(50),
         address VARCHAR(500),
         phone_number CHAR(50),
         dax_number  CHAR(50),
         fireStation_latitude DECIMAL(10,7) NOT NULL,
         fireStation_longitude DECIMAL(10,7) NOT NULL,
-        PRIMARY KEY(Team_name)
+        PRIMARY KEY(team_name)
     );'''
     cursor.execute(sql)
 
