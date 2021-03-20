@@ -23,7 +23,7 @@ try:
     cursor = connection.cursor()
 
     #Creating table as per requirement
-    sql ='''CREATE TABLE seed(
+    sql ='''CREATE TABLE seeds(
         seed_id INT NOT NULL,
         seed_x DOUBLE ,
         seed_y DOUBLE ,
