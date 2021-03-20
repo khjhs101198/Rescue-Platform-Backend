@@ -27,14 +27,14 @@ def add_headers(response):
 
 
 class seeds(db.Model):  
-    seed_id = db.Column(db.Integer , primary_key=True)
+    seed_id = db.Column(db.Integer , primary_key=True, nullable=False)
     seed_x = db.Column(db.Float)
     seed_y = db.Column(db.Float)
     seed_z = db.Column(db.Float)
     seed_battery = db.Column(db.Float)
     seed_status = db.Column(db.Integer)
-    seed_latitude = db.Column(db.Float)
-    seed_longitude = db.Column(db.Float)
+    seed_latitude = db.Column(db.Float, nullable=False)
+    seed_longitude = db.Column(db.Float, nullable=False)
 
     def __init__(self, seed_id, seed_x, seed_y, seed_z, seed_battery, seed_status, seed_latitude, seed_longitude):
         self.seed_id = seed_id
@@ -46,18 +46,42 @@ class seeds(db.Model):
         self.seed_latitude = seed_latitude
         self.seed_longitude = seed_longitude
 
-class cars(db.Model):  
-    car_license_plate = db.Column(db.String, primary_key=True)
-    car_latitude  = db.Column(db.Float)
-    car_longitude = db.Column(db.Float)
-    car_status = db.Column(db.Integer)
+class firestation(db.Model):  
+    team_name = db.Column(db.String, primary_key=True, nullable=False)
+    brigade = db.Column(db.String, nullable=False)
+    squadron  = db.Column(db.String, nullable=False)
+    area_code = db.Column(db.CHAR(50))
+    address = db.Column(db.VARCHAR(500))
+    phone_number = db.Column(db.CHAR(50))
+    dax_number = db.Column(db.CHAR(50))
+    fireStation_latitude = db.Column(db.Float, nullable=False)
+    fireStation_longitude = db.Column(db.Float, nullable=False)
+    def __init__(self, team_name, brigade,squadron,area_code,address,phone_number,dax_number,fireStation_latitude,fireStation_longitude):
+        self.team_name =  team_name
+        self.brigade =  brigade
+        self.squadron = squadron
+        self.area_code = area_code
+        self.address = address
+        self.phone_number = phone_number
+        self.dax_number = dax_number
+        self.fireStation_latitude = fireStation_latitude
+        self.fireStation_longitude = fireStation_longitude
 
-    def __init__(self,car_license_plate,car_latitude,car_longitude,car_status):
+class firestation_car(db.Model):  
+    car_license_plate = db.Column(db.CHAR(50), primary_key=True, nullable=False)
+    team_name = db.Column(db.CHAR(50), nullable=False)
+    car_latitude  = db.Column(db.Float, nullable=False)
+    car_longitude = db.Column(db.Float, nullable=False)
+    car_status = db.Column(db.Integer)
+    car_kind = db.Column(db.Integer)
+
+    def __init__(self, car_license_plate, team_name, car_latitude,car_longitude, car_status):
         self.car_license_plate =  car_license_plate
-        self.car_status = car_status
+        self.team_name =  team_name
         self.car_latitude = car_latitude
         self.car_longitude = car_longitude
-
+        self.car_status = car_status
+        self.car_kind = car_kind
 
 @app.route('/')
 def index():
@@ -135,23 +159,36 @@ def UpdateSeeds():
 def ReturnCarsJson():
     List = []
     i = 0
-    carall = cars.query.all()
+    carall = firestation_car.query.all()
     for car in carall:
         List.append({'car_license_plate':car.car_license_plate,
+        'team_name':car.team_name,
         'car_latitude':car.car_latitude,
         'car_longitude':car.car_longitude,
         'car_status':car.car_status
         })
-        jsonData = json.dumps(List)
+        jsonData = json.dumps(List,ensure_ascii=False)
     return jsonData
 
 # All information of cars will send to this route.
 @app.route('/GetFireStationJson', methods=['GET','POST'])
 def ReturnFireStationJson():
-    users = {}
-    with open('output-merge.json', 'r') as f:
-          jsonData = f.read()
-    return  jsonData
+    List = []
+    i = 0
+    stationall = firestation.query.all()
+    for station in stationall:
+        List.append({'team_name':station.team_name,
+        'brigade':station.brigade,
+        'squadron':station.squadron,
+        'area_code':station.area_code,
+        'address':station.address,
+        'phone_number':station.phone_number,
+        'dax_number':station.dax_number,
+        'fireStation_latitude':station.fireStation_latitude,
+        'fireStation_longitude':station.fireStation_longitude
+        })
+        jsonData = json.dumps(List,ensure_ascii=False)
+    return jsonData
 
 # Front-end send json to back-end to change car status.
 @app.route('/ChangeCarStatus', methods=['GET','POST','OPTIONS'])
@@ -173,7 +210,7 @@ def ChangeCarStatus():
 
     for item in request_carstatus_json:
     # Filter database, to find the car.
-        TheCar = cars.query.filter_by(car_license_plate = item['car_license_plate']).first()
+        TheCar = firestation_car.query.filter_by(car_license_plate = item['car_license_plate']).first()
         if TheCar :
             cars.query.filter_by(car_license_plate = item['car_license_plate'] ).update({'car_status' :item['car_status']})
             db.session.commit()
