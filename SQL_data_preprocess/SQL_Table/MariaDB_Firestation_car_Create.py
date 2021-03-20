@@ -23,7 +23,7 @@ try:
     cursor = connection.cursor()
 
     #Creating table as per requirement
-    sql ='''CREATE TABLE FirestationCar(
+    sql ='''CREATE TABLE firestation_car(
 		car_license_plate CHAR(50) NOT NULL ,
         team_name CHAR(50) NOT NULL,
         car_latitude DECIMAL(10,7) NOT NULL,
@@ -31,7 +31,7 @@ try:
 		car_status INT,
 		car_kind INT,
         PRIMARY KEY(car_license_plate),
-		FOREIGN KEY (team_name) REFERENCES Firestation(team_name) 
+		FOREIGN KEY(team_name) REFERENCES firestation(team_name) 
     );'''
     cursor.execute(sql)
 
