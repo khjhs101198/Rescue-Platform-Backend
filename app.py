@@ -263,7 +263,7 @@ def ChangeCarItude():
     return json.dumps(request_carstatus_json,ensure_ascii=False)
 
 # Front-end send json to back-end to change car address.
-@app.route('ChangeCarAddress', methods=['GET','POST'])
+@app.route('/ChangeCarAddress', methods=['GET','POST'])
 def ChangeCarAddress():
     request_carstatus_json =request.get_json()
     print(request_carstatus_json)
