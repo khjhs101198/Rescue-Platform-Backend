@@ -191,7 +191,8 @@ def ReturnCarsJson():
         'team_name':car.team_name,
         'car_latitude':car.car_latitude,
         'car_longitude':car.car_longitude,
-        'car_status':car.car_status
+        'car_status':car.car_status,
+        'car_kind':car.car_kind
         })
         jsonData = json.dumps(List,ensure_ascii=False)
     return jsonData
