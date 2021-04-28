@@ -282,6 +282,11 @@ def ChangeCarAddress():
     db.session.commit()        
     return json.dumps(request_carstatus_json,ensure_ascii=False)
 
+@app.route('/GetTunnelKML', methods = ['GET','POST'])
+def GetTunnelKML():
+    f = open("中寮隧道.kml","r")
+    kmll = f.read()
+    return kmll
 
 if __name__ == '__main__':
     app.run(debug=True,host="0.0.0.0",port=3000)
