@@ -239,8 +239,11 @@ def ChangeCarStatus():
     # Filter database, to find the car.
         TheCar = firestation_car.query.filter_by(car_license_plate = item['car_license_plate']).first()
         if TheCar :
-            cars.query.filter_by(car_license_plate = item['car_license_plate'] ).update({'car_status' :item['car_status']})
-            db.session.commit()
+            firestation_car.query.filter_by(car_license_plate = item['car_license_plate'] ).update({'car_status' :item['car_status']})
+        else :
+            return "Car does not exist."
+    db.session.commit()
+    return json.dumps(request_carstatus_json,ensure_ascii=False)        
             return json.dumps(request_carstatus_json,ensure_ascii=False)
         else :
             return "Car does not exist."
