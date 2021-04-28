@@ -1,8 +1,9 @@
-from flask import Flask, render_template, jsonify, request
-from flask import flash,redirect, url_for, flash
+from flask import Flask, render_template, jsonify, request ,flash,redirect, url_for
+from flask_mqtt import Mqtt
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 from flask_apscheduler import APScheduler
+#from routine.MapCarMove import Jiaxian2seeds1
 import requests
 import json
 import importlib
@@ -172,9 +173,6 @@ def UpdateSeeds():
                 'seed_longitude' : item['seed_longitude'] , 
                 'seed_battery' : item['seed_battery'] , 
                 'seed_status' :item['seed_status']})
-            db.session.commit()
-            return json.dumps(request_json,ensure_ascii=False) 
-
         else :
             return "Seed does not exist." 
     db.session.commit()
