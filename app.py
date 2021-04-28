@@ -13,8 +13,18 @@ importlib.reload(sys)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://Tsen:CTsen@localhost/smartdb"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-CORS(app)
+
+
+app1 = Flask(__name__)
+app1.config['MQTT_BROKER_URL'] = '140.116.245.233'
+# app.config['MQTT_BROKER_PORT'] = 3001
+app1.config['MQTT_USERNAME'] = 'admin'
+app1.config['MQTT_PASSWORD'] = 'admin'
+app1.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
+
 db = SQLAlchemy(app)
+CORS(app)
+mqtt = Mqtt(app1)
 
 @app.after_request
 def add_headers(response):
@@ -24,7 +34,21 @@ def add_headers(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
+# Mqtt 
+@mqtt.on_connect()
+def handle_connect(client, userdata, flags, rc):
+    mqtt.subscribe('GIOT-GW/UL/80029CF7BD76')
 
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+    payload = message.payload.decode()
+    p = json.loads(payload)
+    d = {}
+    d = dict(p[0])
+    print("-------msg-------")
+    print("Mac address :",d['macAddr'])
+    print("Data :",d['data'])
+    
 
 class seeds(db.Model):  
     seed_id = db.Column(db.Integer , primary_key=True, nullable=False)
