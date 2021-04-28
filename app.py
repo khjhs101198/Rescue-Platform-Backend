@@ -263,8 +263,24 @@ def ChangeCarItude():
             return "Car does not exist."
     db.session.commit()        
     return json.dumps(request_carstatus_json,ensure_ascii=False)
+
+# Front-end send json to back-end to change car address.
+@app.route('ChangeCarAddress', methods=['GET','POST'])
+def ChangeCarAddress():
+    request_carstatus_json =request.get_json()
+    print(request_carstatus_json)
+
+    for item in request_carstatus_json:
+    # Filter database, to find the car.
+        TheCar = firestation_car.query.filter_by(car_license_plate = item['car_license_plate']).first()
+        if TheCar :
+            firestation_car.query.filter_by(car_license_plate = item['car_license_plate'] ).update({
+                'car_where' :item['car_where']
+            })
         else :
             return "Car does not exist."
+    db.session.commit()        
+    return json.dumps(request_carstatus_json,ensure_ascii=False)
 
 
 if __name__ == '__main__':
