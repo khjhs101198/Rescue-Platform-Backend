@@ -99,6 +99,7 @@ class firestation_car(db.Model):
     car_longitude = db.Column(db.Float, nullable=False)
     car_status = db.Column(db.Integer)
     car_kind = db.Column(db.Integer)
+    car_where = db.Column(db.VARCHAR(100), nullable=False)
 
     def __init__(self, car_license_plate, team_name, car_latitude,car_longitude, car_status):
         self.car_license_plate =  car_license_plate
@@ -107,6 +108,7 @@ class firestation_car(db.Model):
         self.car_longitude = car_longitude
         self.car_status = car_status
         self.car_kind = car_kind
+        self.car_where = car_where
 
 @app.route('/')
 def index():
@@ -190,7 +192,8 @@ def ReturnCarsJson():
         'car_latitude':car.car_latitude,
         'car_longitude':car.car_longitude,
         'car_status':car.car_status,
-        'car_kind':car.car_kind
+        'car_kind':car.car_kind,
+        'car_where':car.car_where,
         })
         jsonData = json.dumps(List,ensure_ascii=False)
     return jsonData
@@ -263,22 +266,32 @@ def ChangeCarItude():
     return json.dumps(request_carstatus_json,ensure_ascii=False)
 
 # Front-end send json to back-end to change car address.
-@app.route('/ChangeCarAddress', methods=['GET','POST'])
+@app.route('/ChangeCarAddress', methods=['GET','POST','OPTIONS'])
+@cross_origin()
 def ChangeCarAddress():
-    request_carstatus_json =request.get_json()
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true',
+            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+            'Access-Control-Max-Age': 1000,
+            'Access-Control-Allow-Headers':'Authorization, Content-Type',
+            'Access-Control-Allow-Headers': 'origin, x-csrftoken, content-type accept',
+        }
+        return '', 200, headers
+
+    request_carstatus_json =request.get_json(force=True)
     print(request_carstatus_json)
 
     for item in request_carstatus_json:
     # Filter database, to find the car.
         TheCar = firestation_car.query.filter_by(car_license_plate = item['car_license_plate']).first()
         if TheCar :
-            firestation_car.query.filter_by(car_license_plate = item['car_license_plate'] ).update({
-                'car_where' :item['car_where']
-            })
+            firestation_car.query.filter_by(car_license_plate = item['car_license_plate'] ).update({'car_where' :item['car_where']})
         else :
             return "Car does not exist."
-    db.session.commit()        
-    return json.dumps(request_carstatus_json,ensure_ascii=False)
+    db.session.commit()
+    return json.dumps(request_carstatus_json,ensure_ascii=False)        
 
 @app.route('/GetTunnelKML', methods = ['GET','POST'])
 def GetTunnelKML():
