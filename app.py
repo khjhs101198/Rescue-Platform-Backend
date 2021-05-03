@@ -60,8 +60,8 @@ class seeds(db.Model):
     seed_status = db.Column(db.Integer)
     seed_latitude = db.Column(db.Float, nullable=False)
     seed_longitude = db.Column(db.Float, nullable=False)
-
-    def __init__(self, seed_id, seed_x, seed_y, seed_z, seed_battery, seed_status, seed_latitude, seed_longitude):
+    seed_admin = db.Column(db.VARCHAR(10))
+    def __init__(self, seed_id, seed_x, seed_y, seed_z, seed_battery, seed_status, seed_latitude, seed_longitude, seed_admin):
         self.seed_id = seed_id
         self.seed_x = seed_x
         self.seed_y = seed_y
@@ -70,6 +70,8 @@ class seeds(db.Model):
         self.seed_status = seed_status
         self.seed_latitude = seed_latitude
         self.seed_longitude = seed_longitude
+        self.seed_admin = seed_admin
+        
 
 class firestation(db.Model):  
     team_name = db.Column(db.String, primary_key=True, nullable=False)
