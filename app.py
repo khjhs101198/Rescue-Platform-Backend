@@ -152,7 +152,7 @@ def RegisterSeeds():
         if TheSeed :
             return "The seed has already been registered."
         else :
-            NewSeed = seeds(item['seed_id'],0,0,0,100,item['seed_status'],item['seed_latitude'],item['seed_longitude'])
+            NewSeed = seeds(item['seed_id'],0,0,0,100,item['seed_status'],item['seed_latitude'],item['seed_longitude'],item['seed_admin'])
             db.session.add(NewSeed)
             db.session.commit()
             return json.dumps(request_json,ensure_ascii=False) 
