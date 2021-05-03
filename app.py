@@ -103,7 +103,7 @@ class firestation_car(db.Model):
     car_kind = db.Column(db.Integer)
     car_where = db.Column(db.VARCHAR(100), nullable=False)
 
-    def __init__(self, car_license_plate, team_name, car_latitude,car_longitude, car_status):
+    def __init__(self, car_license_plate, team_name, car_latitude,car_longitude, car_status, car_where):
         self.car_license_plate =  car_license_plate
         self.team_name =  team_name
         self.car_latitude = car_latitude
