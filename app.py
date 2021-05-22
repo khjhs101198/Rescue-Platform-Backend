@@ -180,7 +180,7 @@ def UpdateSeeds():
         else :
             return "Seed does not exist." 
     db.session.commit()
-    return json.dumps(request_carstatus_json,ensure_ascii=False)        
+    return json.dumps(request_json,ensure_ascii=False)        
 
 # All information of cars will send to this route.
 @app.route('/GetCarsJson', methods=['GET','POST'])
