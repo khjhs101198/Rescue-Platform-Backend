@@ -173,8 +173,8 @@ def UpdateSeeds():
                 'seed_x' : item['seed_x'] , 
                 'seed_y' : item['seed_y'] , 
                 'seed_z' : item['seed_z'] ,
-                'seed_latitude' : item['seed_latitude'] ,
-                'seed_longitude' : item['seed_longitude'] , 
+                # 'seed_latitude' : item['seed_latitude'] ,
+                # 'seed_longitude' : item['seed_longitude'] , 
                 'seed_battery' : item['seed_battery'] , 
                 'seed_status' :item['seed_status']})
         else :
