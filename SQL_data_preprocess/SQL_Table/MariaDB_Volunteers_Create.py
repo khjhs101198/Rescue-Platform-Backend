@@ -25,12 +25,12 @@ try:
     #Creating table as per requirement
     sql ='''CREATE TABLE volunteers(
         id INT NOT NULL AUTO_INCREMENT,
-        have_task TINYINT;
-        state TINYINT;
+        have_task TINYINT,
+        state TINYINT,
         latitude DECIMAL(10,7) NOT NULL,
         longitude DECIMAL(10,7) NOT NULL,
         PRIMARY KEY(id)
-        );'''
+    );'''
     cursor.execute(sql)
 
     #Closing the connection

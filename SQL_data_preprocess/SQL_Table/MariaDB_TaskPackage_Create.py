@@ -24,10 +24,10 @@ try:
 
     #Creating table as per requirement
     sql ='''CREATE TABLE task_package(
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT NOT NULL,
     latitude DECIMAL(10,7) NOT NULL,
     longitude DECIMAL(10,7) NOT NULL,
-    task_date DATE;
+    task_date DATE,
     taskinfo VARCHAR(500),
     PRIMARY KEY(id),
     FOREIGN KEY(id) REFERENCES volunteers(id)

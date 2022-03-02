@@ -26,7 +26,9 @@ try:
     sql ='''CREATE TABLE light_pole(
         id INT NOT NULL AUTO_INCREMENT,
         token CHAR(10) NOT NULL,
-        time_phase TINYINT;
+        time_phase TINYINT,
+        PRIMARY KEY(id)
+
     );'''
     cursor.execute(sql)
 
