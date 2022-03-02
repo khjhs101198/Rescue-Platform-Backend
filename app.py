@@ -209,19 +209,6 @@ def ReturnTaskpackageJson():
             }) 
     db.session.commit()
 
-    for package in task_packagesall:
-        List.append({'id':package.id,
-        'taskinfo':package.taskinfo,
-        'task_date':str(package.task_date),
-        'latitude':package.latitude,
-        'longitude':package.longitude
-        })
-        jsonData = json.dumps(List,ensure_ascii=False)
-    return jsonData
-
-@app.route('/GetLightpoleJson', methods=['GET','POST'])
-def ReturnLightpoleJson():
-    List = []
     light_polesall = light_pole.query.all()
     for pole in light_polesall:
         light_pole.query.filter_by( id = pole.id ).update({
@@ -229,12 +216,21 @@ def ReturnLightpoleJson():
             }) 
     db.session.commit()
 
-    for pole in light_polesall:
-        List.append({'id':pole.id,
-        'token':pole.token,
-        'time_phase':pole.time_phase
-        })
-        jsonData = json.dumps(List,ensure_ascii=False)
+    for package in task_packagesall:
+        List.append({'id':package.id,
+            'taskinfo':package.taskinfo,
+            'task_date':str(package.task_date),
+            'latitude':package.latitude,
+            'longitude':package.longitude,
+            'light_poles':{}
+            })
+        for pole in light_polesall:
+            List.append({
+                'id':pole.id,
+                'token':pole.token,
+                'time_phase':pole.time_phase
+            })
+    jsonData = json.dumps(List,ensure_ascii=False)
     return jsonData
 
 @app.route('/GetTunnelKML', methods = ['GET','POST'])
