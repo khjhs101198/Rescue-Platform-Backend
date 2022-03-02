@@ -1,8 +1,5 @@
-#!/usr/bin/python
-#-*- coding: utf-8 -*-
 import mysql.connector
 from mysql.connector import Error
-from Datetime_To import * 
 try:
     # 連接 MySQL/MariaDB 資料庫
     connection = mysql.connector.connect(
@@ -22,26 +19,24 @@ try:
         cursor.execute("SELECT DATABASE();")
         record = cursor.fetchone()
         print("目前使用的資料庫：", record)
+
     cursor = connection.cursor()
-    i = 0    
-    #Creating table as per requirement
-    sql = "INSERT INTO light_pole(id, token, time_phase) VALUES (%s,%s,%s);"
-    date_str = GetStrDate()
-    date_int = StrDateToInt(date_str)
 
-    letter = date_int % 26
-    token_A = chr(letter+65)
+    sql = "INSERT INTO task_package(id , latitude, longitude, task_date, taskinfo)VALUES (%s,%s,%s,%s,%s);"
 
-    for i in range(1,6):
-        token_B = date_int * i
-        token_B = StrDateToInt(str(token_B))
+    new_data = (1, 23.161645572986895, 120.64251171091588)
+    cursor.execute(sql, new_data)
 
-        tokenstr = token_A + "-" + str(token_B) 
-        new_data = (i,tokenstr,1)
-        cursor.execute(sql, new_data)
+    new_data = (2, 23.161645572986895, 120.64251171091588)
+    cursor.execute(sql, new_data)
+    
+    new_data = (3, 23.161645572986895, 120.64251171091588)
+    cursor.execute(sql, new_data)  
+    
     connection.commit()
     #Closing the connection
     connection.close()
+
 
 except Error as e:
     print("資料庫連接失敗：", e)

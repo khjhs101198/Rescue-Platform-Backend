@@ -1,117 +1,5 @@
-from flask import Flask, render_template, jsonify, request ,flash,redirect, url_for
-from flask_mqtt import Mqtt
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
-from flask_apscheduler import APScheduler
-#from routine.MapCarMove import Jiaxian2seeds1
-import requests
-import json
-import importlib
-import sys
-importlib.reload(sys)
-
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://Tsen:CTsen@localhost/smartdb"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
-app1 = Flask(__name__)
-app1.config['MQTT_BROKER_URL'] = '140.116.245.233'
-# app.config['MQTT_BROKER_PORT'] = 3001
-app1.config['MQTT_USERNAME'] = 'admin'
-app1.config['MQTT_PASSWORD'] = 'admin'
-app1.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
-
-db = SQLAlchemy(app)
-CORS(app)
-mqtt = Mqtt(app1)
-
-@app.after_request
-def add_headers(response):
-    response.headers.add('Content-Type', 'application/json')
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
-    return response
-# Mqtt 
-@mqtt.on_connect()
-def handle_connect(client, userdata, flags, rc):
-    mqtt.subscribe('GIOT-GW/UL/80029CF7BD76')
-
-@mqtt.on_message()
-def handle_mqtt_message(client, userdata, message):
-    payload = message.payload.decode()
-    p = json.loads(payload)
-    d = {}
-    d = dict(p[0])
-    print("-------msg-------")
-    print("Mac address :",d['macAddr'])
-    print("Data :",d['data'])
-    
-
-class seeds(db.Model):  
-    seed_id = db.Column(db.Integer , primary_key=True, nullable=False)
-    seed_x = db.Column(db.Float)
-    seed_y = db.Column(db.Float)
-    seed_z = db.Column(db.Float)
-    seed_battery = db.Column(db.Float)
-    seed_status = db.Column(db.Integer)
-    seed_latitude = db.Column(db.Float, nullable=False)
-    seed_longitude = db.Column(db.Float, nullable=False)
-    seed_admin = db.Column(db.VARCHAR(10))
-    def __init__(self, seed_id, seed_x, seed_y, seed_z, seed_battery, seed_status, seed_latitude, seed_longitude, seed_admin):
-        self.seed_id = seed_id
-        self.seed_x = seed_x
-        self.seed_y = seed_y
-        self.seed_z = seed_z
-        self.seed_battery = seed_battery
-        self.seed_status = seed_status
-        self.seed_latitude = seed_latitude
-        self.seed_longitude = seed_longitude
-        self.seed_admin = seed_admin
-        
-
-class firestation(db.Model):  
-    team_name = db.Column(db.String, primary_key=True, nullable=False)
-    brigade = db.Column(db.String, nullable=False)
-    squadron  = db.Column(db.String, nullable=False)
-    area_code = db.Column(db.CHAR(50))
-    address = db.Column(db.VARCHAR(500))
-    phone_number = db.Column(db.CHAR(50))
-    dax_number = db.Column(db.CHAR(50))
-    fireStation_latitude = db.Column(db.Float, nullable=False)
-    fireStation_longitude = db.Column(db.Float, nullable=False)
-    def __init__(self, team_name, brigade,squadron,area_code,address,phone_number,dax_number,fireStation_latitude,fireStation_longitude):
-        self.team_name =  team_name
-        self.brigade =  brigade
-        self.squadron = squadron
-        self.area_code = area_code
-        self.address = address
-        self.phone_number = phone_number
-        self.dax_number = dax_number
-        self.fireStation_latitude = fireStation_latitude
-        self.fireStation_longitude = fireStation_longitude
-
-class firestation_car(db.Model):  
-    car_license_plate = db.Column(db.CHAR(50), primary_key=True, nullable=False)
-    team_name = db.Column(db.CHAR(50), nullable=False)
-    car_latitude  = db.Column(db.Float, nullable=False)
-    car_longitude = db.Column(db.Float, nullable=False)
-    car_status = db.Column(db.Integer)
-    car_kind = db.Column(db.Integer)
-    car_where = db.Column(db.VARCHAR(100), nullable=False)
-
-    def __init__(self, car_license_plate, team_name, car_latitude,car_longitude, car_status, car_kind, car_where):
-        self.car_license_plate =  car_license_plate
-        self.team_name =  team_name
-        self.car_latitude = car_latitude
-        self.car_longitude = car_longitude
-        self.car_status = car_status
-        self.car_kind = car_kind
-        self.car_where = car_where
-
+from Class_Grop import *
+from SQL_data_preprocess.SQL_Table.Datetime_To import *
 @app.route('/')
 def index():
     return "Hello Word!"
@@ -295,9 +183,63 @@ def ChangeCarAddress():
     db.session.commit()
     return json.dumps(request_carstatus_json,ensure_ascii=False)        
 
+@app.route('/GetVolunteersJson', methods=['GET','POST'])
+def ReturnVolunteersJson():
+    List = []
+
+    volunteersall = volunteers.query.all()
+    for volunteer in volunteersall:
+        List.append({'id':volunteer.id,
+        'have_task':volunteer.have_task,
+        'state':volunteer.state,
+        'latitude':volunteer.latitude,
+        'longitude':volunteer.longitude
+        })
+        jsonData = json.dumps(List,ensure_ascii=False)
+    return jsonData
+
+@app.route('/GetTaskpackageJson', methods=['GET','POST'])
+def ReturnTaskpackageJson():
+    List = []
+
+    task_packagesall = task_package.query.all()
+    for package in task_packagesall:
+        task_package.query.filter_by( id = package.id ).update({
+            'task_date' : GetStrDate()
+            }) 
+    db.session.commit()
+
+    for package in task_packagesall:
+        List.append({'id':package.id,
+        'taskinfo':package.taskinfo,
+        'task_date':str(package.task_date),
+        'latitude':package.latitude,
+        'longitude':package.longitude
+        })
+        jsonData = json.dumps(List,ensure_ascii=False)
+    return jsonData
+
+@app.route('/GetLightpoleJson', methods=['GET','POST'])
+def ReturnLightpoleJson():
+    List = []
+    light_polesall = light_pole.query.all()
+    for pole in light_polesall:
+        light_pole.query.filter_by( id = pole.id ).update({
+            'token' : UpdateToken(pole.id)
+            }) 
+    db.session.commit()
+
+    for pole in light_polesall:
+        List.append({'id':pole.id,
+        'token':pole.token,
+        'time_phase':pole.time_phase
+        })
+        jsonData = json.dumps(List,ensure_ascii=False)
+    return jsonData
+
 @app.route('/GetTunnelKML', methods = ['GET','POST'])
 def GetTunnelKML():
-    f = open("中寮隧道.kml","r")
+    f = open("中寮隧道.kml","task_package")
     kmll = f.read()
     return kmll
 

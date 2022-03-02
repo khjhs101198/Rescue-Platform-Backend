@@ -23,9 +23,9 @@ try:
         record = cursor.fetchone()
         print("目前使用的資料庫：", record)
     cursor = connection.cursor()
-    i = 0    
     #Creating table as per requirement
-    sql = "INSERT INTO light_pole(id, token, time_phase) VALUES (%s,%s,%s);"
+    sql = "UPDATE light_pole SET token =%s WHERE id = %s;"
+
     date_str = GetStrDate()
     date_int = StrDateToInt(date_str)
 
@@ -37,7 +37,8 @@ try:
         token_B = StrDateToInt(str(token_B))
 
         tokenstr = token_A + "-" + str(token_B) 
-        new_data = (i,tokenstr,1)
+
+        new_data = (tokenstr,i)
         cursor.execute(sql, new_data)
     connection.commit()
     #Closing the connection
