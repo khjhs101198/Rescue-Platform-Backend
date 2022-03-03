@@ -221,15 +221,14 @@ def ReturnTaskpackageJson():
             'taskinfo':package.taskinfo,
             'task_date':str(package.task_date),
             'latitude':package.latitude,
-            'longitude':package.longitude,
-            'light_poles':{}
+            'longitude':package.longitude
             })
         for pole in light_polesall:
-            List.append({
+            List.append({'light_poles':{
                 'id':pole.id,
                 'token':pole.token,
                 'time_phase':pole.time_phase
-            })
+            }})
     jsonData = json.dumps(List,ensure_ascii=False)
     return jsonData
 
