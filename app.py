@@ -185,51 +185,49 @@ def ChangeCarAddress():
 
 @app.route('/GetVolunteersJson', methods=['GET','POST'])
 def ReturnVolunteersJson():
-    List = []
+    TP = {}
 
     volunteersall = volunteers.query.all()
     for volunteer in volunteersall:
-        List.append({'id':volunteer.id,
-        'have_task':volunteer.have_task,
-        'state':volunteer.state,
-        'latitude':volunteer.latitude,
-        'longitude':volunteer.longitude
-        })
-        jsonData = json.dumps(List,ensure_ascii=False)
+        TP[volunteer.id] = {}
+        TP[volunteer.id]['have_task'] = volunteer.have_task
+        TP[volunteer.id]['state'] = volunteer.state
+        TP[volunteer.id]['latitude'] = volunteer.latitude
+        TP[volunteer.id]['longitude'] = volunteer.longitude
+        jsonData = json.dumps(TP,ensure_ascii=False)
     return jsonData
 
-@app.route('/GetTaskpackageJson', methods=['GET','POST'])
-def ReturnTaskpackageJson():
-    List = []
+@app.route('/GetTaskpackageJson/<int:vid>', methods=['GET','POST'])
+def ReturnTaskpackageJson(vid):
+    if (vid > 3):
+        return "No such id"
+    TP = {}
 
-    task_packagesall = task_package.query.all()
-    for package in task_packagesall:
-        task_package.query.filter_by( id = package.id ).update({
-            'task_date' : GetStrDate()
-            }) 
+    # task_packagesall = task_package.query.all()
+    # for package in task_packagesall:
+    task_package.query.filter_by(id = vid).update({'task_date' : GetStrDate()}) 
     db.session.commit()
 
     light_polesall = light_pole.query.all()
     for pole in light_polesall:
-        light_pole.query.filter_by( id = pole.id ).update({
-            'token' : UpdateToken(pole.id)
-            }) 
+        pole.query.filter_by(id = pole.id).update({'token' : UpdateToken(pole.id)}) 
     db.session.commit()
 
-    for package in task_packagesall:
-        List.append({'id':package.id,
-            'taskinfo':package.taskinfo,
-            'task_date':str(package.task_date),
-            'latitude':package.latitude,
-            'longitude':package.longitude
-            })
-        for pole in light_polesall:
-            List.append({'light_poles':{
-                'id':pole.id,
-                'token':pole.token,
-                'time_phase':pole.time_phase
-            }})
-    jsonData = json.dumps(List,ensure_ascii=False)
+    the_package = task_package.query.filter_by(id = vid).first()
+    light_polesall = light_pole.query.all()
+
+    TP[vid] = {}
+    TP[vid]['taskinfo'] = the_package.taskinfo
+    TP[vid]['task_date'] = str(the_package.task_date)
+    TP[vid]['latitude'] = the_package.latitude
+    TP[vid]['longitude'] = the_package.longitude
+    TP[vid]['light_pole'] = {}
+    
+    for pole in light_polesall:
+        TP[vid]['light_pole'][pole.id] = {}
+        TP[vid]['light_pole'][pole.id]['token'] = pole.token
+        TP[vid]['light_pole'][pole.id]['time_phase'] = pole.time_phase
+    jsonData = json.dumps(TP,ensure_ascii=False)
     return jsonData
 
 @app.route('/GetTunnelKML', methods = ['GET','POST'])
