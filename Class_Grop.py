@@ -118,8 +118,8 @@ class volunteers(db.Model):
     state = db.Column(db.Integer)
 
     def __init__(self, id, have_task, latitude,longitude, state):
-        self.id =  id
-        self.have_task =  have_task
+        self.id = id
+        self.have_task = have_task
         self.latitude = latitude
         self.longitude = longitude
         self.state = state
@@ -127,23 +127,23 @@ class volunteers(db.Model):
 class light_pole(db.Model):  
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     token = db.Column(db.CHAR(10),nullable=False)
-    time_phase  = db.Column(db.Integer)
 
     def __init__(self, id, token, time_phase):
         self.id =  id
         self.token = token
-        self.time_phase = time_phase
 
 class task_package(db.Model):  
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     task_date = db.Column(db.Date)
-    latitude  = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     taskinfo = db.Column(db.VARCHAR(500))
+    lightpoles_phase = db.Column(db.VARCHAR(50))
 
-    def __init__(self, id, task_date, latitude,longitude, taskinfo):
-        self.id =  id
-        self.task_date =  task_date
+    def __init__(self, id, task_date, latitude,longitude, taskinfo, lightpoles_phase):
+        self.id = id
+        self.task_date = task_date
         self.latitude = latitude
         self.longitude = longitude
         self.taskinfo = taskinfo
+        self.lightpoles_phase = lightpoles_phase

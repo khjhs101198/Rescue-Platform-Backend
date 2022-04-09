@@ -25,7 +25,7 @@ try:
     cursor = connection.cursor()
     i = 0    
     #Creating table as per requirement
-    sql = "INSERT INTO light_pole(id, token, time_phase) VALUES (%s,%s,%s);"
+    sql = "INSERT INTO light_pole(id, token) VALUES (%s,%s);"
     date_str = GetStrDate()
     date_int = StrDateToInt(date_str)
 
@@ -37,7 +37,7 @@ try:
         token_B = StrDateToInt(str(token_B))
 
         tokenstr = token_A + "-" + str(token_B) 
-        new_data = (i,tokenstr,1)
+        new_data = (i,tokenstr)
         cursor.execute(sql, new_data)
     connection.commit()
     #Closing the connection

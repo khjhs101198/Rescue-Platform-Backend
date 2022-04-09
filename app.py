@@ -1,5 +1,6 @@
 from Class_Grop import *
 from SQL_data_preprocess.SQL_Table.Datetime_To import *
+from routine.lightpoles_phaseToarray import lightpoles_phaseToarray
 @app.route('/')
 def index():
     return "Hello Word!"
@@ -203,8 +204,6 @@ def ReturnTaskpackageJson(vid):
         return "No such id"
     TP = {}
 
-    # task_packagesall = task_package.query.all()
-    # for package in task_packagesall:
     task_package.query.filter_by(id = vid).update({'task_date' : GetStrDate()}) 
     db.session.commit()
 
@@ -216,6 +215,9 @@ def ReturnTaskpackageJson(vid):
     the_package = task_package.query.filter_by(id = vid).first()
     light_polesall = light_pole.query.all()
 
+    phase = the_package.lightpoles_phase
+    arr = lightpoles_phaseToarray(phase)
+
     TP[vid] = {}
     TP[vid]['taskinfo'] = the_package.taskinfo
     TP[vid]['task_date'] = str(the_package.task_date)
@@ -226,9 +228,47 @@ def ReturnTaskpackageJson(vid):
     for pole in light_polesall:
         TP[vid]['light_pole'][pole.id] = {}
         TP[vid]['light_pole'][pole.id]['token'] = pole.token
-        TP[vid]['light_pole'][pole.id]['time_phase'] = pole.time_phase
+        TP[vid]['light_pole'][pole.id]['phase'] = arr[pole.id]
     jsonData = json.dumps(TP,ensure_ascii=False)
     return jsonData
+
+@app.route('/SetTask', methods=['GET','POST'])
+def SetTask():
+    task_json =request.get_json(force=True)
+    print(task_json)
+
+    light_polesall = light_pole.query.all()
+    for pole in light_polesall:
+        pole.query.filter_by(id = pole.id).update({'token' : UpdateToken(pole.id)}) 
+    db.session.commit()
+
+     # Filter database, to find the volunteer.
+    for item in task_json:
+        no = item['nofv']
+        for i in range(no):
+            the_v = volunteers.query.filter_by(id = item['id'][i]).first()
+            if the_v :
+                volunteers.query.filter_by(id = item['id'][i]).update({'have_task' : 1})
+                volunteers.query.filter_by(id = item['id'][i]).update({'state' :1})
+
+            the_pack = task_package.query.filter_by(id = item['id'][i]).first()
+            if the_pack :
+                task_package.query.filter_by(id = item['id'][i]).update({'latitude' :item['latitude']})
+                task_package.query.filter_by(id = item['id'][i]).update({'longitude' :item['longitude']})
+                task_package.query.filter_by(id = item['id'][i]).update({'taskinfo' :item['taskinfo']})
+                task_package.query.filter_by(id = item['id'][i]).update({'lightpoles_phase': item['lightpoles_phase']})
+                task_package.query.filter_by(id = item['id'][i]).update({'task_date': GetStrDate()})
+    db.session.commit()
+
+    return json.dumps(task_json,ensure_ascii=False)   
+
+@app.route('/ResponTask/<int:vid>/<int:ans>', methods=['GET','POST'])
+def ResponTask(vid,ans):
+    task_package.query.filter_by(id = vid).update({'state' : ans}) 
+    db.session.commit()
+    return ans
+    
+
 
 @app.route('/GetTunnelKML', methods = ['GET','POST'])
 def GetTunnelKML():

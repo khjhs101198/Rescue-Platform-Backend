@@ -30,20 +30,9 @@ try:
     # for i in range(1,4):
     #     new_data = (datestr,i)
     #     cursor.execute(sql, new_data)
-    
-    # sql = "UPDATE task_package SET taskinfo =%s WHERE id = %s;"
-    # new_data = ("需要 500 加侖的水",1) 
-    # cursor.execute(sql, new_data)
-    # new_data = ("需要一輛能載 20 人的載具",2)
-    # cursor.execute(sql, new_data)
-    # new_data = ("需要 100 人份的棉被",3)
-    # cursor.execute(sql, new_data)
-
-    sql = "UPDATE task_package SET lightpoles_phase =%s WHERE id = %s;"
-    for i in range(1,4):
-        new_data = ("1,2,1,6,5",i)
-        cursor.execute(sql, new_data)
-    connection.commit() 
+    # connection.commit()
+    sql = '''ALTER TABLE task_package ADD lightpoles_phase VARCHAR(50);'''
+    cursor.execute(sql)
     #Closing the connection
     connection.close()
 
