@@ -1,3 +1,4 @@
+from sre_constants import SUCCESS
 from Class_Grop import *
 from SQL_data_preprocess.SQL_Table.Datetime_To import *
 from routine.lightpoles_phaseToarray import lightpoles_phaseToarray
@@ -235,38 +236,50 @@ def ReturnTaskpackageJson(vid):
 @app.route('/SetTask', methods=['GET','POST'])
 def SetTask():
     task_json =request.get_json(force=True)
-    print(task_json)
-
+    print(type(task_json))
     light_polesall = light_pole.query.all()
     for pole in light_polesall:
         pole.query.filter_by(id = pole.id).update({'token' : UpdateToken(pole.id)}) 
     db.session.commit()
 
-     # Filter database, to find the volunteer.
-    for item in task_json:
-        no = item['nofv']
+    # Filter database, to find the volunteer.
+    no = task_json['nofv']
+    if no < 0:
+        no = -1 * no
         for i in range(no):
-            the_v = volunteers.query.filter_by(id = item['id'][i]).first()
+            the_v = volunteers.query.filter_by(id = task_json['id'][i]).first()
             if the_v :
-                volunteers.query.filter_by(id = item['id'][i]).update({'have_task' : 1})
-                volunteers.query.filter_by(id = item['id'][i]).update({'state' :1})
+                volunteers.query.filter_by(id = task_json['id'][i]).update({'have_task' : 0})
+                volunteers.query.filter_by(id = task_json['id'][i]).update({'state' :0})
+    else:            
+        for i in range(no):
+            the_v = volunteers.query.filter_by(id = task_json['id'][i]).first()
+            if the_v :
+                volunteers.query.filter_by(id = task_json['id'][i]).update({'have_task' : 1})
+                volunteers.query.filter_by(id = task_json['id'][i]).update({'state' :1})
 
-            the_pack = task_package.query.filter_by(id = item['id'][i]).first()
+            the_pack = task_package.query.filter_by(id = task_json['id'][i]).first()
             if the_pack :
-                task_package.query.filter_by(id = item['id'][i]).update({'latitude' :item['latitude']})
-                task_package.query.filter_by(id = item['id'][i]).update({'longitude' :item['longitude']})
-                task_package.query.filter_by(id = item['id'][i]).update({'taskinfo' :item['taskinfo']})
-                task_package.query.filter_by(id = item['id'][i]).update({'lightpoles_phase': item['lightpoles_phase']})
-                task_package.query.filter_by(id = item['id'][i]).update({'task_date': GetStrDate()})
+                task_package.query.filter_by(id = task_json['id'][i]).update({'latitude' :task_json['latitude']})
+                task_package.query.filter_by(id = task_json['id'][i]).update({'longitude' :task_json['longitude']})
+                task_package.query.filter_by(id = task_json['id'][i]).update({'taskinfo' :task_json['taskinfo']})
+                task_package.query.filter_by(id = task_json['id'][i]).update({'lightpoles_phase': task_json['lightpoles_phase']})
+                task_package.query.filter_by(id = task_json['id'][i]).update({'task_date': GetStrDate()})
     db.session.commit()
 
     return json.dumps(task_json,ensure_ascii=False)   
 
 @app.route('/ResponTask/<int:vid>/<int:ans>', methods=['GET','POST'])
 def ResponTask(vid,ans):
-    task_package.query.filter_by(id = vid).update({'state' : ans}) 
+    if(ans == 0):
+        the_v = volunteers.query.filter_by(id = vid).first()
+        if(the_v.have_task == 1 and the_v.state == 3):
+          volunteers.query.filter_by(id = vid).update({'have_task' : 0})   
+    
+
+    volunteers.query.filter_by(id = vid).update({'state' : ans}) 
     db.session.commit()
-    return ans
+    return str(SUCCESS) 
     
 
 
